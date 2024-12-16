@@ -13,7 +13,7 @@ app.use(express.json());
     console.log('Database connected.');
 
     // Sync models
-    await sequelize.sync({ alter: true }); // Use `force: true` to drop existing tables
+    await sequelize.sync({ alter: true }); // Use `alter: true` for development, remove for production
     console.log('Database synced.');
 
     app.listen(3000, () => console.log('Server running on http://localhost:3000'));
