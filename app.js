@@ -1,9 +1,6 @@
 const express = require('express');
 const sequelize = require('./config/db.config');
 
-// Import Models
-const User = require('./models/User');
-
 const app = express();
 app.use(express.json());
 
@@ -23,4 +20,7 @@ app.use(express.json());
 })();
 
 const userRoutes = require('./routes/users');
+const eventRoutes = require('./routes/events');
+
 app.use('/users', userRoutes);
+app.use('/events', eventRoutes);
