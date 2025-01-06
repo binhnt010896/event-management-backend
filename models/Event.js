@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db.config.js');
 
 const Event = sequelize.define('Event', {
-  title: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -20,10 +20,6 @@ const Event = sequelize.define('Event', {
   },
   category: {
     type: DataTypes.STRING,
-    allowNull: false,
-  },
-  organizerId: {
-    type: DataTypes.INTEGER,
     allowNull: false,
   },
 }, {
