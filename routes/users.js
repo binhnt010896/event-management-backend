@@ -1,8 +1,8 @@
 const express = require('express');
 const { body } = require('express-validator');
 const router = express.Router();
-const { registerUser, getAllUsers, loginUser } = require('../controllers/userController');
-const {authenticateJWT} = require('../middlewares/authMiddleware');
+const { registerUser, getAllUsers, loginUser, getCurrentUserProfile } = require('../controllers/userController');
+const {authenticateJWT, requireAdmin} = require('../middlewares/authMiddleware');
 // Import Models
 const User = require('../models/User');
 
@@ -40,7 +40,10 @@ router.post('/register', validateRegistration, registerUser);
 router.post('/login', validateLogin, loginUser);
 
 // GET /users - Fetch all users
-router.get('/', authenticateJWT, getAllUsers);
+router.get('/', authenticateJWT, requireAdmin, getAllUsers);
+
+// Get current user profile
+router.get('/profile', authenticateJWT, getCurrentUserProfile);
 
 
 module.exports = router;

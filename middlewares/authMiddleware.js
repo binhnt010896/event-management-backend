@@ -19,8 +19,16 @@ exports.authenticateJWT = (req, res, next) => {
 
 // Middleware to check if the user has the organizer role
 exports.requireOrganizer = (req, res, next) => {
-  if (req.user.role !== 'organizer') {
-    return res.status(403).json({ success: false, message: 'Access denied. Organizer role required.' });
+  if (req.user.role !== 'organizer' && req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Access denied. Organizer role or higher required.' });
+  }
+  next();
+};
+
+// Middleware to check if the user has the organizer role
+exports.requireAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Access denied. Admin role required.' });
   }
   next();
 };
