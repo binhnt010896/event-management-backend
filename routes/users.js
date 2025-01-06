@@ -2,7 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const router = express.Router();
 const { registerUser, getAllUsers, loginUser } = require('../controllers/userController');
-const authenticateJWT = require('../middlewares/authMiddleware');
+const {authenticateJWT} = require('../middlewares/authMiddleware');
 // Import Models
 const User = require('../models/User');
 
