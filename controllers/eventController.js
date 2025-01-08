@@ -1,4 +1,8 @@
 const Event = require('../models/Event');
+const User = require('../models/User');
+const EventRegistration = require('../models/EventRegistration');
+const { v4: uuidv4 } = require('uuid');
+const { v4 } = require('bcrypt');
 
 // Create a new event
 exports.createEvent = async (req, res) => {
