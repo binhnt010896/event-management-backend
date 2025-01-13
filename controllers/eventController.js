@@ -114,26 +114,21 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
-// Sign up for an event
+// User sign up for an event
 exports.signUpForEvent = async (req, res) => {
   try {
-    const { userId, eventId } = req.body;
+    const { id: eventId } = req.params; // Extract eventId from URL
+    const userId = req.user.id; // Extract userId from the token middleware
 
     // Validate input
-    if (!userId || !eventId) {
-      return res.status(400).json({ success: false, message: 'User ID and Event ID are required.' });
+    if (!eventId) {
+      return res.status(400).json({ success: false, message: 'Event ID is required.' });
     }
 
     // Check if event exists
     const event = await Event.findByPk(eventId);
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found.' });
-    }
-
-    // Check if user exists
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
     // Check if already registered
