@@ -1,17 +1,26 @@
-const Event = require('../models/Event');
-const User = require('../models/User');
-const EventRegistration = require('../models/EventRegistration');
+const {Event, User, EventRegistration, Guest, Speaker} = require('../models/index')
+
 const { v4: uuidv4 } = require('uuid');
 const { v4 } = require('bcrypt');
 
 // Create a new event
 exports.createEvent = async (req, res) => {
   try {
-    const { name, description, date, location, category } = req.body;
+    const { name, description, date, location, category, speakers, guests } = req.body;
 
     // Validate required fields
     if (!name || !date || !location || !category) {
       return res.status(400).json({ success: false, message: 'All required fields must be provided.' });
+    }
+
+    if (speakers && speakers.length > 0) {
+      const speakerInstances = await Speaker.findAll({ where: { id: speakers } });
+      await event.addSpeakers(speakerInstances);
+    }
+
+    if (guests && guests.length > 0) {
+      const guestInstances = await Guest.findAll({ where: { id: guests } });
+      await event.addGuests(guestInstances);
     }
 
     // Create the event
