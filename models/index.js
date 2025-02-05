@@ -7,12 +7,6 @@ const EventRegistration = require('./EventRegistration');
 
 
 // Define relationships
-Event.hasMany(Speaker, { foreignKey: 'eventId' });
-Speaker.belongsTo(Event, { foreignKey: 'eventId' });
-
-Event.hasMany(Guest, { foreignKey: 'eventId' });
-Guest.belongsTo(Event, { foreignKey: 'eventId' });
-
 User.hasMany(EventRegistration, { foreignKey: 'userId' });
 EventRegistration.belongsTo(User, { foreignKey: 'userId' });
 

@@ -13,20 +13,30 @@ exports.createEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All required fields must be provided.' });
     }
 
-    if (speakers && speakers.length > 0) {
+    // Create the event
+    const event = await Event.create({ name, description, date, location, category });
+
+    // Associate speakers with the event
+    if (Array.isArray(speakers) && speakers.length > 0) {
       const speakerInstances = await Speaker.findAll({ where: { id: speakers } });
       await event.addSpeakers(speakerInstances);
     }
 
-    if (guests && guests.length > 0) {
+    // Associate guests with the event
+    if (Array.isArray(guests) && guests.length > 0) {
       const guestInstances = await Guest.findAll({ where: { id: guests } });
       await event.addGuests(guestInstances);
     }
 
-    // Create the event
-    const event = await Event.create({ name, description, date, location, category });
+    // Fetch the event with its related speakers and guests
+    const createdEvent = await Event.findByPk(event.id, {
+      include: [
+        { model: Speaker, through: { attributes: [] } },
+        { model: Guest, through: { attributes: [] } },
+      ],
+    });
 
-    res.status(201).json({ success: true, message: 'Event created successfully.', data: event });
+    res.status(201).json({ success: true, message: 'Event created successfully.', data: createdEvent });
   } catch (err) {
     console.error('Error creating event:', err);
     res.status(500).json({ success: false, message: 'Failed to create event.' });
@@ -53,7 +63,18 @@ exports.getEventById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const event = await Event.findByPk(id);
+    const event = await Event.findByPk(id, {
+      include: [
+        {
+          model: Speaker,
+          through: { attributes: [] }, // Hide the join table attributes
+        },
+        {
+          model: Guest,
+          through: { attributes: [] },
+        },
+      ],
+    });
 
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found.' });
