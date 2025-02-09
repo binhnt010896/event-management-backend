@@ -3,6 +3,7 @@ const User = require('./User');
 const Event = require('./Event');
 const Speaker = require('./Speaker');
 const Guest = require('./Guest');
+const Review = require('./Review');
 const EventRegistration = require('./EventRegistration');
 
 
@@ -21,6 +22,15 @@ Speaker.belongsToMany(Event, { through: 'EventSpeakers' });
 Event.belongsToMany(Guest, { through: 'EventGuests' });
 Guest.belongsToMany(Event, { through: 'EventGuests' });
 
+User.hasMany(Review, { foreignKey: 'userId' });
+Review.belongsTo(User, { foreignKey: 'userId' });
+
+Event.hasMany(Review, { foreignKey: 'eventId' });
+Review.belongsTo(Event, { foreignKey: 'eventId' });
+
+Speaker.hasMany(Review, { foreignKey: 'speakerId' });
+Review.belongsTo(Speaker, { foreignKey: 'speakerId' });
+
 
 // Export models and sequelize instance
 module.exports = {
@@ -30,4 +40,5 @@ module.exports = {
     Speaker,
     Guest,
     EventRegistration,
+    Review,
 };

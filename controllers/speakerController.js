@@ -1,12 +1,32 @@
-const { Speaker, Guest } = require('../models/index');
+const { Speaker, Guest, Review } = require('../models/index');
 
 const isOrganizerOrAdmin = (role) => ['organizer', 'admin'].includes(role);
 
 // Get All Speakers
 const getAllSpeakers = async (req, res) => {
   try {
-    const speakers = await Speaker.findAll();
-    res.status(200).json({ success: true, data: speakers });
+    const speakers = await Speaker.findAll({
+      include: [
+        {
+          model: Review,
+          attributes: ['rating'],
+        },
+      ],
+    });
+
+    // Compute average rating for each speaker
+    const speakerData = speakers.map(speaker => {
+      const reviews = speaker.Reviews || [];
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = reviews.length > 0 ? (totalRating / reviews.length) : 0;
+
+      return {
+        ...speaker.toJSON(),
+        average_rating: averageRating,
+      };
+    });
+
+    res.status(200).json({ success: true, data: speakerData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

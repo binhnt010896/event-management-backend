@@ -1,4 +1,4 @@
-const {Event, User, EventRegistration, Guest, Speaker} = require('../models/index')
+const {Event, User, EventRegistration, Guest, Speaker, Review} = require('../models/index')
 
 const { v4: uuidv4 } = require('uuid');
 const { v4 } = require('bcrypt');
@@ -49,9 +49,26 @@ exports.getAllEvents = async (req, res) => {
     const { category } = req.query;
     const filter = category ? { category } : {};
 
-    const events = await Event.findAll({ where: filter });
+    const events = await Event.findAll({ where: filter, include: [
+      {
+        model: Review,
+        attributes: ['rating'],
+      },
+    ] });
 
-    res.status(200).json({ success: true, data: events });
+    // Compute average rating for each event
+    const eventData = events.map(event => {
+      const reviews = event.Reviews || [];
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = reviews.length > 0 ? (totalRating / reviews.length) : 0;
+
+      return {
+        ...event.toJSON(),
+        average_rating: averageRating,
+      };
+    });
+
+    res.status(200).json({ success: true, data: eventData });
   } catch (err) {
     console.error('Error fetching events:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch events.' });
@@ -73,6 +90,16 @@ exports.getEventById = async (req, res) => {
           model: Guest,
           through: { attributes: [] },
         },
+        {
+          model: Review,
+          attributes: ['id', 'rating', 'comment', 'userId', 'createdAt'],
+          include: [
+            {
+              model: User,
+              attributes: ['id', 'name'], // Include user details for the review
+            },
+          ],
+        },
       ],
     });
 
@@ -80,7 +107,18 @@ exports.getEventById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Event not found.' });
     }
 
-    res.status(200).json({ success: true, data: event });
+    // Calculate average rating
+    const reviews = event.Reviews || [];
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? (totalRating / reviews.length) : null;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...event.toJSON(),
+        average_rating: averageRating,
+      },
+    });
   } catch (err) {
     console.error('Error fetching event:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch event.' });
